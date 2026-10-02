@@ -44,3 +44,5 @@ export async function countUnreadConversations(client:SupabaseClient,userId:stri
  for(const p of data??[]){let q=client.from("messages").select("id",{count:"exact",head:true}).eq("conversation_id",p.conversation_id).neq("sender_id",userId); if(p.last_read_at)q=q.gt("created_at",p.last_read_at); const r=await q;if(r.error)return {count:0,error:r.error};if((r.count??0)>0)count++;}
  return {count,error:null};
 }
+
+export function subscribeToUserConversationMessages(client:SupabaseClient,userId:string,onChange:()=>void){const channel=client.channel(`user-conversations:${userId}`).on("postgres_changes",{event:"INSERT",schema:"public",table:"messages"},onChange).subscribe();return ()=>{void client.removeChannel(channel);};}
