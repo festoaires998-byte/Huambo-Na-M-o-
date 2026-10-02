@@ -7,6 +7,7 @@ export * from "./location";
 export * from "./listings";
 export * from "./marketplace";
 export * from "./checkout";
+export * from "./commerce";
 
 export const PLATFORM_NAME = "Huambo Online";
 
