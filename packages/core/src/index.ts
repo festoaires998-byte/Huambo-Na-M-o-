@@ -15,6 +15,7 @@ export * from "./auctions";
 export * from "./auction-lifecycle";
 export * from "./delivery";
 export * from "./notifications";
+export * from "./notification-preferences";
 export * from "./moderation";
 export * from "./search";
 export * from "./provinces";
