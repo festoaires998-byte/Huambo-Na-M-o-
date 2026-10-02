@@ -25,7 +25,7 @@ export async function markAllNotificationsRead(client:SupabaseClient,userId?:str
   return client.from("notifications").update({read_at:new Date().toISOString()}).eq("user_id",userId??"").is("read_at",null);
 }
 export function getNotificationConversationId(notification:Pick<AppNotification,"data">){ const value=notification.data?.conversation_id; return typeof value==="string"&&value.length>0?value:null; }
-export function getNotificationListingId(notification:Pick<AppNotification,"data">){
+export function getNotificationSavedSearchId(notification:Pick<AppNotification,"data">){ const value=notification.data?.saved_search_id; return typeof value==="string"&&value.length>0?value:null; }\nexport function getNotificationListingId(notification:Pick<AppNotification,"data">){
   const value=notification.data?.listing_id;
   return typeof value==="string"&&value.length>0?value:null;
 }
@@ -40,5 +40,5 @@ export async function createNotification(client:SupabaseClient,input:{userId:str
   return client.rpc("create_notification",{p_user_id:input.userId,p_type:input.type,p_title:input.title,p_body:input.body,p_data:input.data||{}});
 }
 export async function listSavedSearchNotifications(client:SupabaseClient){
-  return client.from("notifications").select(columns).eq("type","saved_search").order("created_at",{ascending:false});
+  return client.from("notifications").select(columns).eq("user_id",userId??"").eq("type","saved_search").order("created_at",{ascending:false});
 }
