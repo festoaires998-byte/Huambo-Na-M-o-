@@ -1,11 +1,12 @@
 import { useEffect,useState } from "react";
 import { Stack,useLocalSearchParams } from "expo-router";
-import { StyleSheet,Text,View,ScrollView,Image } from "react-native";
+import { StyleSheet,Text,View,ScrollView,Image,TextInput,Pressable } from "react-native";
 import { createSupabaseClient } from "@huambo-online/supabase";
-import { getClassifiedListing } from "@huambo-online/core";
+import { getClassifiedListing,contactListingOwner } from "@huambo-online/core";
 const url=process.env.EXPO_PUBLIC_SUPABASE_URL??"";const key=process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY??"";
-export default function ClassifiedDetail(){const {id}=useLocalSearchParams<{id:string}>();const [item,setItem]=useState<any>(null);const [error,setError]=useState("");
+export default function ClassifiedDetail(){const {id}=useLocalSearchParams<{id:string}>();const [item,setItem]=useState<any>(null);const [error,setError]=useState("");const [message,setMessage]=useState("");const [sent,setSent]=useState(false);const [busy,setBusy]=useState(false);
 useEffect(()=>{if(!id)return;(async()=>{const c=createSupabaseClient(url,key);const r=await getClassifiedListing(c,id);if(r.error)setError(r.error.message);else if(!r.data)setError("Anúncio não encontrado ou já não está publicado.");else setItem(r.data);})()},[id]);
+async function contact(){if(!message.trim()||!id)return;setBusy(true);const c=createSupabaseClient(url,key);const r=await contactListingOwner(c,id,message);setBusy(false);if(r.error)setError(r.error.message);else{setSent(true);setMessage("");}}
 if(error)return <View style={s.container}><Text>{error}</Text></View>;if(!item)return <View style={s.container}><Text>A carregar anúncio…</Text></View>;
-return <ScrollView contentContainerStyle={s.container}><Stack.Screen options={{title:item.title}}/><Text style={s.title}>{item.title}</Text><Text>{item.description}</Text><Text style={s.price}>{item.price??"Preço sob consulta"} {item.currency}</Text><Text>{item.purpose} · {item.listing_type}</Text>{Array.isArray(item.media)&&item.media.map((m:string,i:number)=><Image key={i} source={{uri:m}} style={s.image}/>)}</ScrollView>}
-const s=StyleSheet.create({container:{padding:24,gap:16},title:{fontSize:30,fontWeight:"800"},price:{fontSize:22,fontWeight:"700"},image:{width:"100%",height:260,borderRadius:12}});
+return <ScrollView contentContainerStyle={s.container}><Stack.Screen options={{title:item.title}}/><Text style={s.title}>{item.title}</Text><Text>{item.description}</Text><Text style={s.price}>{item.price??"Preço sob consulta"} {item.currency}</Text><Text>{item.purpose} · {item.listing_type}</Text>{Array.isArray(item.media)&&item.media.map((m:string,i:number)=><Image key={i} source={{uri:m}} style={s.image}/>)}<View style={s.contact}><Text style={s.subtitle}>Contactar anunciante</Text><TextInput value={message} onChangeText={setMessage} placeholder="Escreva a sua mensagem" multiline style={s.input}/><Pressable disabled={busy||!message.trim()} onPress={contact}><Text>{busy?"A enviar…":"Enviar mensagem"}</Text></Pressable>{sent&&<Text>Mensagem enviada. A conversa foi criada.</Text>}</View></ScrollView>}
+const s=StyleSheet.create({container:{padding:24,gap:16},title:{fontSize:30,fontWeight:"800"},subtitle:{fontSize:20,fontWeight:"700"},price:{fontSize:22,fontWeight:"700"},image:{width:"100%",height:260,borderRadius:12},contact:{marginTop:24,borderTopWidth:1,borderColor:"#ddd",paddingTop:20,gap:12},input:{borderWidth:1,borderColor:"#ccc",borderRadius:10,padding:12,minHeight:100}});
