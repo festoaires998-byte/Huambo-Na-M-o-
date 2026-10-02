@@ -2,12 +2,13 @@
 import {useEffect,useState} from "react";
 import {createSupabaseClient} from "@huambo-online/supabase";
 import {useSearchParams} from "next/navigation";
-import {listConversations,listMessages,sendMessage,markConversationRead,subscribeToConversationMessages,conversationFromParticipantRow,isConversationUnread} from "@huambo-online/core";
+import {listConversations,listMessages,sendMessage,markConversationRead,subscribeToConversationMessages,subscribeToUserConversationMessages,conversationFromParticipantRow,isConversationUnread} from "@huambo-online/core";
 const url=process.env.NEXT_PUBLIC_SUPABASE_URL??"";const key=process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY??"";
 export default function Mensagens(){const searchParams=useSearchParams();const [items,setItems]=useState<any[]>([]);const [previews,setPreviews]=useState<Record<string,any>>({});const [selected,setSelected]=useState<any>(null);const [msgs,setMsgs]=useState<any[]>([]);const [body,setBody]=useState("");const [uid,setUid]=useState("");
 async function load(){const c=createSupabaseClient(url,key);const u=await c.auth.getUser();if(!u.data.user)return;setUid(u.data.user.id);const r=await listConversations(c,u.data.user.id);const rows=r.data??[];setItems(rows);const pv:any={};for(const row of rows){const x=conversationFromParticipantRow(row);const m=await listMessages(c,x.id);pv[x.id]=m.data?.at(-1)??null;}setPreviews(pv);}
 async function open(x:any){setSelected(x);const c=createSupabaseClient(url,key);const r=await listMessages(c,x.id);setMsgs(r.data??[]);if(uid)await markConversationRead(c,x.id,uid);}
 useEffect(()=>{void load();},[]);
+useEffect(()=>{if(!uid)return;const c=createSupabaseClient(url,key);return subscribeToUserConversationMessages(c,uid,()=>{void load();});},[uid]);
 useEffect(()=>{const id=searchParams.get("conversation");if(id&&items.length){const x=items.find(v=>v.id===id);if(x)void open(x);}},[searchParams,items.length]);
 useEffect(()=>{if(!selected)return;const c=createSupabaseClient(url,key);return subscribeToConversationMessages(c,selected.id,async()=>{const r=await listMessages(c,selected.id);setMsgs(r.data??[]);if(uid)await markConversationRead(c,selected.id,uid);});},[selected?.id,uid]);
 async function send(){if(!body.trim()||!selected||!uid)return;const c=createSupabaseClient(url,key);await sendMessage(c,selected.id,uid,body);setBody("");}
