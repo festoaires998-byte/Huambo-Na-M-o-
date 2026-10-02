@@ -24,6 +24,7 @@ export async function markNotificationRead(client:SupabaseClient,id:string){
 export async function markAllNotificationsRead(client:SupabaseClient){
   return client.from("notifications").update({read_at:new Date().toISOString()}).is("read_at",null);
 }
+export function getNotificationConversationId(notification:Pick<AppNotification,"data">){ const value=notification.data?.conversation_id; return typeof value==="string"&&value.length>0?value:null; }
 export function getNotificationListingId(notification:Pick<AppNotification,"data">){
   const value=notification.data?.listing_id;
   return typeof value==="string"&&value.length>0?value:null;
