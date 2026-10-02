@@ -24,6 +24,10 @@ export async function listClassifiedListings(client:SupabaseClient,filters:{
   return q;
 }
 
+export async function getClassifiedListing(client:SupabaseClient,id:string){
+  return client.from("classified_listings").select("id,owner_id,category_id,address_id,listing_type,purpose,title,description,price,currency,attributes,media,status,featured,created_at,updated_at").eq("id",id).eq("status","published").maybeSingle();
+}
+
 export async function updateClassifiedStatus(client:SupabaseClient,id:string,status:string){
   return client.from("classified_listings").update({status,updated_at:new Date().toISOString()}).eq("id",id).select().single();
 }
