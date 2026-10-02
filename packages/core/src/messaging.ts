@@ -26,3 +26,5 @@ export async function listMessages(client:SupabaseClient,conversationId:string){
 export async function sendMessage(client:SupabaseClient,conversationId:string,senderId:string,body:string){
   return client.from("messages").insert({conversation_id:conversationId,sender_id:senderId,body:body.trim()}).select().single();
 }
+export async function markConversationRead(client:SupabaseClient,conversationId:string,userId:string){return client.from("conversation_participants").update({last_read_at:new Date().toISOString()}).eq("conversation_id",conversationId).eq("user_id",userId);}
+export function subscribeToConversationMessages(client:SupabaseClient,conversationId:string,onChange:()=>void){const channel=client.channel(`conversation:${conversationId}`).on("postgres_changes",{event:"INSERT",schema:"public",table:"messages",filter:`conversation_id=eq.${conversationId}`},onChange).subscribe();return ()=>{void client.removeChannel(channel);};}
