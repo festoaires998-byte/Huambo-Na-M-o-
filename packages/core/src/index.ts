@@ -3,6 +3,7 @@ import type { ListingType } from "@huambo-online/types";
 export * from "./discovery";
 export * from "./identity";
 export * from "./onboarding";
+export * from "./location";
 
 export const PLATFORM_NAME = "Huambo Online";
 
