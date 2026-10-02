@@ -1,5 +1,6 @@
 export * from "./discovery";
 export * from "./identity";
+export * from "./onboarding";
 
 export type UserRole =
   | "customer" | "provider" | "seller" | "business_owner"
