@@ -18,7 +18,7 @@ export default function NotificacoesPage(){
  }
  useEffect(()=>{void load();},[]);
  return <main style={{maxWidth:900,margin:"0 auto",padding:32}}>
-  <a href="/">← Huambo Online</a><h1>Notificações {unread>0&&<small>({unread} novas)</small>}</h1>
+  <a href="/">← Huambo Online</a><p><a href="/notificacoes/preferencias">⚙️ Preferências de notificações</a></p><h1>Notificações {unread>0&&<small>({unread} novas)</small>}</h1>
   <button onClick={async()=>{const c=createSupabaseClient(url,key);await markAllNotificationsRead(c);await load();}}>Marcar todas como lidas</button>
   {error&&<p>{error}</p>}
   <section style={{marginTop:24,display:"grid",gap:12}}>
