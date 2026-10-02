@@ -22,6 +22,7 @@ export * from "./categories";
 export * from "./reputation";
 export * from "./saved-items";
 export * from "./classified-listings";
+export * from "./classified-auctions";
 
 export const PLATFORM_NAME = "Huambo Online";
 
