@@ -13,6 +13,7 @@
   "dependencies": {
     "@huambo-online/config": "workspace:*",
     "@huambo-online/core": "workspace:*",
+    "@huambo-online/supabase": "workspace:*",
     "@huambo-online/types": "workspace:*",
     "expo": "^57.0.0",
     "expo-router": "^6.0.0",
