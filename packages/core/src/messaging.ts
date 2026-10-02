@@ -1,12 +1,12 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export async function createConversation(client:SupabaseClient,userId:string,input:{
-  subject?:string; contextType?:string; businessId?:string; providerId?:string; serviceId?:string; productId?:string; orderId?:string; participantIds:string[];
+  subject?:string; contextType?:string; businessId?:string; providerId?:string; serviceId?:string; productId?:string; orderId?:string; classifiedListingId?:string; participantIds:string[];
 }) {
   const created=await client.from("conversations").insert({
     created_by:userId,subject:input.subject?.trim()||null,context_type:input.contextType||"general",
     business_id:input.businessId||null,provider_id:input.providerId||null,service_id:input.serviceId||null,
-    product_id:input.productId||null,order_id:input.orderId||null
+    product_id:input.productId||null,order_id:input.orderId||null,classified_listing_id:input.classifiedListingId||null
   }).select().single();
   if(created.error) return created;
   const ids=[...new Set([userId,...input.participantIds])].map(user_id=>({conversation_id:created.data.id,user_id}));
