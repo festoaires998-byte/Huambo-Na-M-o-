@@ -10,6 +10,7 @@ export * from "./checkout";
 export * from "./commerce";
 export * from "./reviews";
 export * from "./favorites";
+export * from "./messaging";
 
 export const PLATFORM_NAME = "Huambo Online";
 
