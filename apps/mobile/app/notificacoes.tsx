@@ -8,7 +8,7 @@ export default function Notificacoes(){
  const [items,setItems]=useState<any[]>([]); const [unread,setUnread]=useState(0);
  async function load(){const c=createSupabaseClient(url,key);const a=await listNotifications(c);const b=await countUnreadNotifications(c);setItems(a.data??[]);setUnread(b.count??0);}
  useEffect(()=>{void load();},[]);
- return <ScrollView contentContainerStyle={s.container}><Link href="/">← Huambo Online</Link><Text style={s.title}>Notificações {unread>0?(`(${unread} novas)`):""}</Text>
+ return <ScrollView contentContainerStyle={s.container}><Link href="/">← Huambo Online</Link><Link href="/notificacoes-preferencias">⚙️ Preferências de notificações</Link><Text style={s.title}>Notificações {unread>0?(`(${unread} novas)`):""}</Text>
  <Pressable onPress={async()=>{const c=createSupabaseClient(url,key);await markAllNotificationsRead(c);await load();}}><Text>Marcar todas como lidas</Text></Pressable>
  {items.map(n=><View key={n.id} style={s.card}><Text style={s.strong}>{n.title}</Text><Text>{n.body}</Text><Text>{new Date(n.created_at).toLocaleString("pt-AO")}</Text>
  {!n.read_at&&<Pressable onPress={async()=>{const c=createSupabaseClient(url,key);await markNotificationRead(c,n.id);await load();}}><Text>Marcar como lida</Text></Pressable>}
