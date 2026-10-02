@@ -12,6 +12,7 @@ export * from "./reviews";
 export * from "./favorites";
 export * from "./messaging";
 export * from "./auctions";
+export * from "./auction-lifecycle";
 
 export const PLATFORM_NAME = "Huambo Online";
 
