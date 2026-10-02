@@ -30,6 +30,7 @@ export * from "./classified-workflow";
 export * from "./classified-attributes";
 export * from "./classified-search";
 export * from "./classified-location-search";
+export * from "./classified-saved-searches";
 
 export const PLATFORM_NAME = "Huambo Online";
 
