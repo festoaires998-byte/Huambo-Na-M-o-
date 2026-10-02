@@ -27,6 +27,7 @@ export * from "./classified-messaging";
 export * from "./rentals";
 export * from "./classified-moderation";
 export * from "./classified-workflow";
+export * from "./classified-attributes";
 
 export const PLATFORM_NAME = "Huambo Online";
 
