@@ -1,4 +1,4 @@
-export type ConversationContext = "general"|"business"|"provider"|"service"|"product"|"order";
+export type ConversationContext = "general"|"business"|"provider"|"service"|"product"|"order"|"classified";
 
 export interface Conversation {
   id:string; createdBy:string; subject?:string; contextType:ConversationContext;
