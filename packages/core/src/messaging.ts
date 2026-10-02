@@ -15,9 +15,12 @@ export async function createConversation(client:SupabaseClient,userId:string,inp
   return created;
 }
 
-export async function listConversations(client:SupabaseClient){
-  return client.from("conversations").select("id,created_by,subject,context_type,business_id,provider_id,service_id,product_id,order_id,created_at,updated_at").order("updated_at",{ascending:false});
+export async function listConversations(client:SupabaseClient,userId?:string){
+  if(!userId)return client.from("conversations").select("id,created_by,subject,context_type,business_id,provider_id,service_id,product_id,order_id,classified_listing_id,created_at,updated_at").order("updated_at",{ascending:false});
+  return client.from("conversation_participants").select("conversation_id,last_read_at,conversations(id,created_by,subject,context_type,business_id,provider_id,service_id,product_id,order_id,classified_listing_id,created_at,updated_at)").eq("user_id",userId);
 }
+export function conversationFromParticipantRow(row:any){return row?.conversations??row;}
+export function isConversationUnread(row:any,lastMessage:any,userId:string){return !!lastMessage&&lastMessage.sender_id!==userId&&(!row.last_read_at||new Date(lastMessage.created_at)>new Date(row.last_read_at));}
 
 export async function listMessages(client:SupabaseClient,conversationId:string){
   return client.from("messages").select("id,conversation_id,sender_id,body,created_at,edited_at").eq("conversation_id",conversationId).order("created_at");
