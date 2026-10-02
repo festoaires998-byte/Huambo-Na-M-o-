@@ -3,9 +3,12 @@ export type DiscoveryEntityType = "business" | "provider" | "service" | "product
 export interface DiscoveryQuery {
   text?: string;
   entityType?: DiscoveryEntityType;
-  category?: string;
+  categoryId?: string;
   municipalityId?: string;
   neighborhoodId?: string;
+  verifiedOnly?: boolean;
+  minPrice?: number;
+  maxPrice?: number;
   latitude?: number;
   longitude?: number;
   radiusKm?: number;
@@ -20,5 +23,9 @@ export interface DiscoveryResult {
   verified?: boolean;
   rating?: number;
   reviewCount?: number;
+  price?: number;
+  currency?: "AOA";
+  municipalityId?: string;
+  neighborhoodId?: string;
   distanceKm?: number;
 }
