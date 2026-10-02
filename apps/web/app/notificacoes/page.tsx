@@ -1,0 +1,2 @@
+import { redirect } from "next/navigation";
+export default function NotificacoesPage(){ return <main style={{maxWidth:900,margin:"0 auto",padding:32}}><a href="/">← Huambo Online</a><h1>Notificações</h1><p>As notificações de pesquisas guardadas aparecem aqui quando houver novos anúncios compatíveis.</p></main>;}
