@@ -20,6 +20,7 @@ export * from "./search";
 export * from "./provinces";
 export * from "./categories";
 export * from "./reputation";
+export * from "./saved-items";
 
 export const PLATFORM_NAME = "Huambo Online";
 
