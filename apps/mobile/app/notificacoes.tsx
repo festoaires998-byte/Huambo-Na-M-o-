@@ -1,4 +1,17 @@
+import { useEffect,useState } from "react";
 import { Link } from "expo-router";
-import { StyleSheet,Text,View } from "react-native";
-export default function Notificacoes(){return <View style={s.container}><Link href="/">← Huambo Online</Link><Text style={s.title}>Notificações</Text><Text>As notificações de pesquisas guardadas aparecerão aqui quando houver novos anúncios compatíveis.</Text></View>}
-const s=StyleSheet.create({container:{flex:1,padding:28,gap:18},title:{fontSize:30,fontWeight:"800"}});
+import { StyleSheet,Text,View,Pressable,ScrollView } from "react-native";
+import { createSupabaseClient } from "@huambo-online/supabase";
+import { countUnreadNotifications,listNotifications,markAllNotificationsRead,markNotificationRead,getNotificationListingId } from "@huambo-online/core";
+const url=process.env.EXPO_PUBLIC_SUPABASE_URL??"";const key=process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY??"";
+export default function Notificacoes(){
+ const [items,setItems]=useState<any[]>([]); const [unread,setUnread]=useState(0);
+ async function load(){const c=createSupabaseClient(url,key);const a=await listNotifications(c);const b=await countUnreadNotifications(c);setItems(a.data??[]);setUnread(b.count??0);}
+ useEffect(()=>{void load();},[]);
+ return <ScrollView contentContainerStyle={s.container}><Link href="/">← Huambo Online</Link><Text style={s.title}>Notificações {unread>0?(`(${unread} novas)`):""}</Text>
+ <Pressable onPress={async()=>{const c=createSupabaseClient(url,key);await markAllNotificationsRead(c);await load();}}><Text>Marcar todas como lidas</Text></Pressable>
+ {items.map(n=><View key={n.id} style={s.card}><Text style={s.strong}>{n.title}</Text><Text>{n.body}</Text><Text>{new Date(n.created_at).toLocaleString("pt-AO")}</Text>
+ {!n.read_at&&<Pressable onPress={async()=>{const c=createSupabaseClient(url,key);await markNotificationRead(c,n.id);await load();}}><Text>Marcar como lida</Text></Pressable>}
+ {getNotificationListingId(n)&&<Link href={"/classificados/"+getNotificationListingId(n)}>Abrir anúncio →</Link>}</View>)}</ScrollView>;
+}
+const s=StyleSheet.create({container:{padding:28,gap:18},title:{fontSize:30,fontWeight:"800"},card:{borderWidth:1,borderColor:"#ddd",borderRadius:14,padding:16,gap:8},strong:{fontWeight:"800"}});
