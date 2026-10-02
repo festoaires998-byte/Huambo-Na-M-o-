@@ -8,21 +8,21 @@ export type AppNotification = {
 
 const columns="id,user_id,type,title,body,data,read_at,created_at";
 
-export async function listNotifications(client:SupabaseClient){
-  return client.from("notifications").select(columns).order("created_at",{ascending:false});
+export async function listNotifications(client:SupabaseClient,userId?:string){
+  return client.from("notifications").select(columns).eq("user_id",userId??"").order("created_at",{ascending:false});
 }
-export async function listUnreadNotifications(client:SupabaseClient){
-  return client.from("notifications").select(columns).is("read_at",null).order("created_at",{ascending:false});
+export async function listUnreadNotifications(client:SupabaseClient,userId?:string){
+  return client.from("notifications").select(columns).eq("user_id",userId??"").is("read_at",null).order("created_at",{ascending:false});
 }
-export async function countUnreadNotifications(client:SupabaseClient){
-  const result=await client.from("notifications").select("id",{count:"exact",head:true}).is("read_at",null);
+export async function countUnreadNotifications(client:SupabaseClient,userId?:string){
+  const result=await client.from("notifications").select("id",{count:"exact",head:true}).eq("user_id",userId??"").is("read_at",null);
   return {count:result.count??0,error:result.error};
 }
-export async function markNotificationRead(client:SupabaseClient,id:string){
-  return client.from("notifications").update({read_at:new Date().toISOString()}).eq("id",id).is("read_at",null).select(columns).single();
+export async function markNotificationRead(client:SupabaseClient,id:string,userId?:string){
+  return client.from("notifications").update({read_at:new Date().toISOString()}).eq("id",id).eq("user_id",userId??"").is("read_at",null).select(columns).single();
 }
-export async function markAllNotificationsRead(client:SupabaseClient){
-  return client.from("notifications").update({read_at:new Date().toISOString()}).is("read_at",null);
+export async function markAllNotificationsRead(client:SupabaseClient,userId?:string){
+  return client.from("notifications").update({read_at:new Date().toISOString()}).eq("user_id",userId??"").is("read_at",null);
 }
 export function getNotificationConversationId(notification:Pick<AppNotification,"data">){ const value=notification.data?.conversation_id; return typeof value==="string"&&value.length>0?value:null; }
 export function getNotificationListingId(notification:Pick<AppNotification,"data">){
