@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { createSupabaseClient } from "@huambo-online/supabase";
-import { countUnreadNotifications, listNotifications, markAllNotificationsRead, markNotificationRead, getNotificationListingId } from "@huambo-online/core";
+import { countUnreadNotifications, listNotifications, markAllNotificationsRead, markNotificationRead, getNotificationListingId, getNotificationConversationId } from "@huambo-online/core";
 
 const url=process.env.NEXT_PUBLIC_SUPABASE_URL??"";
 const key=process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY??"";
@@ -25,7 +25,7 @@ export default function NotificacoesPage(){
    {items.map(n=><article key={n.id} style={{border:"1px solid #ddd",borderRadius:14,padding:16,opacity:n.read_at?.7:1}}>
     <strong>{n.title}</strong><p>{n.body}</p><small>{new Date(n.created_at).toLocaleString("pt-AO")}</small>
     {!n.read_at&&<button onClick={async()=>{const c=createSupabaseClient(url,key);await markNotificationRead(c,n.id);await load();}}>Marcar como lida</button>}
-    {getNotificationListingId(n)&&<p><a href={"/classificados/"+getNotificationListingId(n)}>Abrir anúncio →</a></p>}
+    {getNotificationConversationId(n)&&<p><a href={"/mensagens?conversation="+getNotificationConversationId(n)}>Abrir conversa →</a></p>}{getNotificationListingId(n)&&!getNotificationConversationId(n)&&<p><a href={"/classificados/"+getNotificationListingId(n)}>Abrir anúncio →</a></p>}
    </article>)}
   </section>
  </main>;
