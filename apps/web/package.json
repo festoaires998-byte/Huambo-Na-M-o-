@@ -10,6 +10,7 @@
   "dependencies": {
     "@huambo-online/config": "workspace:*",
     "@huambo-online/core": "workspace:*",
+    "@huambo-online/supabase": "workspace:*",
     "@huambo-online/types": "workspace:*",
     "next": "^16.3.8",
     "react": "^19.2.0",
