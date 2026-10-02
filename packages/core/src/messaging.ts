@@ -28,3 +28,16 @@ export async function sendMessage(client:SupabaseClient,conversationId:string,se
 }
 export async function markConversationRead(client:SupabaseClient,conversationId:string,userId:string){return client.from("conversation_participants").update({last_read_at:new Date().toISOString()}).eq("conversation_id",conversationId).eq("user_id",userId);}
 export function subscribeToConversationMessages(client:SupabaseClient,conversationId:string,onChange:()=>void){const channel=client.channel(`conversation:${conversationId}`).on("postgres_changes",{event:"INSERT",schema:"public",table:"messages",filter:`conversation_id=eq.${conversationId}`},onChange).subscribe();return ()=>{void client.removeChannel(channel);};}
+
+export async function countUnreadMessages(client:SupabaseClient,userId:string){
+ const {data,error}=await client.from("conversation_participants").select("conversation_id,last_read_at").eq("user_id",userId);
+ if(error)return {count:0,error}; let count=0;
+ for(const p of data??[]){let q=client.from("messages").select("id",{count:"exact",head:true}).eq("conversation_id",p.conversation_id).neq("sender_id",userId); if(p.last_read_at)q=q.gt("created_at",p.last_read_at); const r=await q;if(r.error)return {count:0,error:r.error};count+=r.count??0;}
+ return {count,error:null};
+}
+export async function countUnreadConversations(client:SupabaseClient,userId:string){
+ const {data,error}=await client.from("conversation_participants").select("conversation_id,last_read_at").eq("user_id",userId);
+ if(error)return {count:0,error}; let count=0;
+ for(const p of data??[]){let q=client.from("messages").select("id",{count:"exact",head:true}).eq("conversation_id",p.conversation_id).neq("sender_id",userId); if(p.last_read_at)q=q.gt("created_at",p.last_read_at); const r=await q;if(r.error)return {count:0,error:r.error};if((r.count??0)>0)count++;}
+ return {count,error:null};
+}
