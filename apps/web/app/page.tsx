@@ -4,6 +4,7 @@ const modules = [
   ["Mensagens", "Converse com empresas, profissionais e anunciantes.", "/mensagens"],
   ["Notificações", "Acompanhe alertas e novidades da plataforma.", "/notificacoes"],
   ["Pesquisas guardadas", "Guarde pesquisas e receba alertas.", "/pesquisas-guardadas"],
+  ["Guardados", "Veja os anúncios que guardou.", "/guardados"],
   ["Conta", "Gerir perfil e atividades da sua conta.", "/conta"],
 ];
 
