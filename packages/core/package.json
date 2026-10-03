@@ -6,5 +6,8 @@
   "types": "src/index.ts",
   "dependencies": {
     "@huambo-online/types": "workspace:*"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.4"
   }
 }
