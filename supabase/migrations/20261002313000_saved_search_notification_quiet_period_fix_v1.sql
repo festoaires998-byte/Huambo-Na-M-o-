@@ -48,7 +48,7 @@ begin
        update public.classified_saved_searches set last_notified_at=p_now,updated_at=p_now where id=s.saved_search_id;
        inserted_count:=inserted_count+1;
      else
-       update public.saved_search_notification_queue set processing_at=null where saved_search_id=s.saved_search_id and user_id=s.user_id and delivered_at=p_now is null;
+       update public.saved_search_notification_queue set processing_at=null where saved_search_id=s.saved_search_id and user_id=s.user_id and delivered_at is null;
      end if;
    end if;
  end loop; return inserted_count;
