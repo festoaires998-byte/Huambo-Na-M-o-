@@ -11,6 +11,7 @@ export async function isModerator(client:SupabaseClient){
   const {data}=await client.rpc("has_admin_role");
   return Boolean(data);
 }
-export async function getMyRole(client:SupabaseClient,userId:string){
-  return client.from("user_roles").select("role").eq("user_id",userId).maybeSingle() as Promise<{data:{role:UserRole}|null;error:any}>;
+export async function getMyRole(client:SupabaseClient,userId:string): Promise<{data:{role:UserRole}|null;error:any}> {
+  const result = await client.from("user_roles").select("role").eq("user_id",userId).maybeSingle();
+  return {data: result.data as {role:UserRole}|null, error: result.error};
 }
