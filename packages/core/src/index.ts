@@ -22,7 +22,7 @@ export * from "./search";
 export * from "./provinces";
 export * from "./categories";
 export { getReputation } from "./reputation";
-export { removeSavedItem, saveItem as saveSavedItem, listSavedItems as listSavedItemsV2 } from "./saved-items";
+export { removeSavedItem, saveItem as saveSavedItem, listSavedItems as listSavedItemsV2, isClassifiedListingSaved, saveClassifiedListing, removeClassifiedListing } from "./saved-items";
 export * from "./classified-listings";
 export * from "./classified-auctions";
 export * from "./classified-messaging";
