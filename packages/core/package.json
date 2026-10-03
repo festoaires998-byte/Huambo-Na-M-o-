@@ -5,7 +5,8 @@
   "main": "src/index.ts",
   "types": "src/index.ts",
   "dependencies": {
-    "@huambo-online/types": "workspace:*"
+    "@huambo-online/types": "workspace:*",
+    "@supabase/supabase-js": "^2.57.0"
   },
   "devDependencies": {
     "vitest": "^3.2.4"
