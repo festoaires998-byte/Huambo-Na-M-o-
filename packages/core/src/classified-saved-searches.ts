@@ -12,3 +12,7 @@ export async function updateSavedClassifiedSearch(client:SupabaseClient,id:strin
 export async function deleteSavedClassifiedSearch(client:SupabaseClient,id:string){
  return client.from("classified_saved_searches").delete().eq("id",id);
 }
+export function savedSearchNotificationTarget(data:Record<string,unknown>){
+ const v=data?.listing_id;
+ return typeof v==="string"&&v.length>0?{listingId:v,savedSearchId:typeof data.saved_search_id==="string"?data.saved_search_id:null}:null;
+}
