@@ -43,4 +43,4 @@ export function getListingLabel(type: ListingType): string {
     case "classified": return "Classificado";
   }
 }
-export * from "./account-security";
+export { requestPasswordReset, deleteCurrentUserAccount } from "./account-security";
