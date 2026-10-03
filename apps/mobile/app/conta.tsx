@@ -1,34 +1,12 @@
-import { Link } from "expo-router";
-import { StyleSheet, Text, View } from "react-native";
-
-const capabilities = [
-  ["Cliente", "Comprar, contratar e pedir serviços."],
-  ["Profissional", "Oferecer conhecimentos e serviços."],
-  ["Vendedor", "Vender produtos."],
-  ["Empresa", "Representar uma organização."]
-];
-
-export default function Conta() {
-  return (
-    <View style={styles.container}>
-      <Link href="/" style={styles.back}>← Huambo Online</Link>
-      <Text style={styles.title}>A sua conta</Text>
-      <Text style={styles.subtitle}>Uma conta pode ter várias atividades.</Text>
-      {capabilities.map(([title, description]) => (
-        <View key={title} style={styles.card}>
-          <Text style={styles.cardTitle}>{title}</Text>
-          <Text>{description}</Text>
-        </View>
-      ))}
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 28, paddingTop: 54, gap: 12 },
-  back: { fontWeight: "700", marginBottom: 8 },
-  title: { fontSize: 34, fontWeight: "800" },
-  subtitle: { fontSize: 17, marginBottom: 8 },
-  card: { borderWidth: 1, borderColor: "#ddd", borderRadius: 16, padding: 18, gap: 6 },
-  cardTitle: { fontSize: 19, fontWeight: "800" }
-});
+import {useEffect,useState} from "react";
+import {Link,useRouter} from "expo-router";
+import {Pressable,StyleSheet,Text,TextInput,View} from "react-native";
+import {createSupabaseClient} from "@huambo-online/supabase";
+import {getCurrentUserProfile,updateCurrentUserProfile,signOutCurrentUser} from "@huambo-online/core";
+const url=process.env.EXPO_PUBLIC_SUPABASE_URL??"";const key=process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY??"";
+export default function Conta(){const router=useRouter();const[p,setP]=useState<any>(null);const[form,setForm]=useState({displayName:"",phone:"",countryCode:"AO",avatarUrl:""});const[msg,setMsg]=useState("Carregando…");
+useEffect(()=>{void(async()=>{const r=await getCurrentUserProfile(createSupabaseClient(url,key));if(r.error||!r.data){setMsg("Inicie sessão para gerir a sua conta.");return}setP(r.data);setForm({displayName:r.data.displayName,phone:r.data.phone??"",countryCode:r.data.countryCode??"AO",avatarUrl:r.data.avatarUrl??""});setMsg("")})();},[]);
+async function save(){const r=await updateCurrentUserProfile(createSupabaseClient(url,key),form);setMsg(r.error?r.error.message:"Perfil atualizado.");if(!r.error)setP(r.data)}
+async function logout(){await signOutCurrentUser(createSupabaseClient(url,key));router.replace("/conta/login" as any)}
+return <View style={s.c}><Link href="/" style={s.back}>← Huambo Online</Link><Text style={s.h}>A sua conta</Text>{msg&&<Text>{msg}</Text>}{p&&<><TextInput style={s.i} placeholder="Nome" value={form.displayName} onChangeText={v=>setForm({...form,displayName:v})}/><TextInput style={s.i} placeholder="Telefone" value={form.phone} onChangeText={v=>setForm({...form,phone:v})}/><TextInput style={s.i} placeholder="País (ex.: AO)" maxLength={2} value={form.countryCode} onChangeText={v=>setForm({...form,countryCode:v.toUpperCase()})}/><TextInput style={s.i} placeholder="URL da foto" value={form.avatarUrl} onChangeText={v=>setForm({...form,avatarUrl:v})}/><Pressable style={s.b} onPress={()=>void save()}><Text>Guardar alterações</Text></Pressable><View style={s.row}><Link href="/guardados" asChild><Pressable><Text>⭐ Guardados</Text></Pressable></Link><Link href="/mensagens" asChild><Pressable><Text>💬 Mensagens</Text></Pressable></Link><Link href="/notificacoes" asChild><Pressable><Text>🔔 Notificações</Text></Pressable></Link></View><Pressable onPress={()=>void logout()}><Text>Terminar sessão</Text></Pressable></>}</View>}
+const s=StyleSheet.create({c:{flex:1,padding:28,paddingTop:54,gap:14},back:{fontWeight:"700"},h:{fontSize:34,fontWeight:"800"},i:{borderWidth:1,borderColor:"#ccc",borderRadius:10,padding:12},b:{borderWidth:1,borderRadius:10,padding:14,alignItems:"center"},row:{gap:14}});
