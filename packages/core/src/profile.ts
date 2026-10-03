@@ -17,7 +17,3 @@ export async function updateCurrentUserProfile(client: SupabaseClient,input:Pick
 
 export async function signOutCurrentUser(client: SupabaseClient){return client.auth.signOut();}
 
-export async function changeCurrentUserPassword(client: SupabaseClient, newPassword: string){
-  if(newPassword.length < 8) return {data:null,error:new Error("A palavra-passe deve ter pelo menos 8 caracteres.")};
-  return client.auth.updateUser({password:newPassword});
-}
