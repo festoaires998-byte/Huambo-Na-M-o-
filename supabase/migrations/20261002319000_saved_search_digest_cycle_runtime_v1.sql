@@ -11,7 +11,7 @@ begin
  group by q.saved_search_id,q.user_id loop
    update public.saved_search_notification_queue set processing_at=p_now where saved_search_id=s.saved_search_id and user_id=s.user_id and delivered_at is null and (processing_at is null or processing_at<p_now-interval '15 minutes');
    if found then
-     cycle_key:=to_char(date_trunc('day',p_now),'YYYY-MM-DD');
+     cycle_key:=to_char((p_now at time zone 'Africa/Luanda')::date,'YYYY-MM-DD');
      insert into public.notifications(user_id,type,title,body,data)
      values(s.user_id,'saved_search',case when s.total=1 then 'Novo anúncio encontrado' else s.total||' novos anúncios encontrados' end,
        case when s.total=1 then 'Um novo anúncio corresponde à sua pesquisa guardada.' else s.total||' novos anúncios correspondem à sua pesquisa guardada.' end,
