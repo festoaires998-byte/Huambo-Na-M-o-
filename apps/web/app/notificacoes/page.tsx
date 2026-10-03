@@ -25,7 +25,7 @@ export default function NotificacoesPage(){
    {items.map(n=><article key={n.id} style={{border:"1px solid #ddd",borderRadius:14,padding:16,opacity:n.read_at?.7:1}}>
     <strong>{n.title}</strong><p>{n.body}</p><small>{new Date(n.created_at).toLocaleString("pt-AO")}</small>
     {!n.read_at&&<button onClick={async()=>{const c=createSupabaseClient(url,key);await markNotificationRead(c,n.id);await load();}}>Marcar como lida</button>}
-    {getNotificationConversationId(n)&&<p><a href={"/mensagens?conversation="+getNotificationConversationId(n)}>Abrir conversa →</a></p>}{getNotificationListingId(n)&&<p><a href={"/classificados/"+getNotificationListingId(n)}>🔎 Abrir anúncio →</a></p>}{getNotificationSavedSearchId(n)&&<p><a href={"/pesquisas-guardadas?search="+getNotificationSavedSearchId(n)}>⭐ Abrir pesquisa guardada →</a></p>}
+    {getNotificationConversationId(n)&&<p><a href={"/mensagens?conversation="+getNotificationConversationId(n)}>Abrir conversa →</a></p>}{getNotificationListingId(n)&&<p><a href={"/classificados/"+getNotificationListingId(n)}>🔎 Abrir anúncio →</a></p>}{getNotificationSavedSearchId(n)&&<p><a href={"/pesquisas-guardadas?search="+getNotificationSavedSearchId(n)}>⭐ Abrir pesquisa guardada →</a></p>}{n.data?.digest&&Array.isArray(n.data?.listing_ids)&&n.data.listing_ids.length>1&&<p><a href={"/notificacoes/digest?ids="+n.data.listing_ids.join(",")}>📦 Ver todos os anúncios ({n.data.listing_ids.length}) →</a></p>}
    </article>)}
   </section>
  </main>;
