@@ -24,6 +24,12 @@ export async function listClassifiedListings(client:SupabaseClient,filters:{
   return q;
 }
 
+export async function listClassifiedListingsByIds(client:SupabaseClient,ids:string[]){
+ const clean=[...new Set(ids.filter(id=>typeof id==="string"&&id.length>0))];
+ if(!clean.length)return {data:[],error:null};
+ return client.from("classified_listings").select("id,owner_id,category_id,address_id,listing_type,purpose,title,description,price,currency,attributes,media,status,featured,created_at,updated_at").in("id",clean).eq("status","published").order("created_at",{ascending:false});
+}
+
 export async function getClassifiedListing(client:SupabaseClient,id:string){
   return client.from("classified_listings").select("id,owner_id,category_id,address_id,listing_type,purpose,title,description,price,currency,attributes,media,status,featured,created_at,updated_at").eq("id",id).eq("status","published").maybeSingle();
 }
