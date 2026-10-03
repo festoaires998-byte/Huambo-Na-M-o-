@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { createSupabaseClient } from "@huambo-online/supabase";
-import { countUnreadNotifications, listNotifications, markAllNotificationsRead, markNotificationRead, getNotificationListingId, getNotificationConversationId, getNotificationSavedSearchId } from "@huambo-online/core";
+import { countUnreadNotifications, listNotifications, markAllNotificationsRead, markNotificationRead, subscribeToNotifications, getNotificationListingId, getNotificationConversationId, getNotificationSavedSearchId } from "@huambo-online/core";
 
 const url=process.env.NEXT_PUBLIC_SUPABASE_URL??"";
 const key=process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY??"";
@@ -16,7 +16,7 @@ export default function NotificacoesPage(){
    setItems(a.data??[]); setUnread(b.count);
   }catch(e){setError(e instanceof Error?e.message:"Não foi possível carregar as notificações.");}
  }
- useEffect(()=>{void load();},[]);
+ useEffect(()=>{void load();const c=createSupabaseClient(url,key);let stop=()=>{};void c.auth.getUser().then(({data})=>{if(data.user)stop=subscribeToNotifications(c,data.user.id,()=>{void load();});});return()=>stop();},[]);
  return <main style={{maxWidth:900,margin:"0 auto",padding:32}}>
   <a href="/">← Huambo Online</a><p><a href="/notificacoes/preferencias">⚙️ Preferências de notificações</a></p><h1>Notificações {unread>0&&<small>({unread} novas)</small>}</h1>
   <button onClick={async()=>{const c=createSupabaseClient(url,key);await markAllNotificationsRead(c);await load();}}>Marcar todas como lidas</button>
