@@ -1,24 +1,9 @@
-const capabilities = [
-  ["Cliente", "Comprar, contratar e pedir serviços."],
-  ["Profissional", "Oferecer os seus conhecimentos e serviços."],
-  ["Vendedor", "Vender produtos no marketplace."],
-  ["Empresa", "Representar uma empresa ou organização."]
-];
-
-export default function ContaPage() {
-  return (
-    <main style={{ maxWidth: 760, margin: "0 auto", padding: "48px 24px" }}>
-      <a href="/">← Huambo Online</a>
-      <h1>A sua conta</h1>
-      <p>Uma conta pode ter várias atividades. Não precisa criar contas diferentes para cada atividade.</p>
-      <section style={{ display: "grid", gap: 12, marginTop: 28 }}>
-        {capabilities.map(([title, description]) => (
-          <article key={title} style={{ border: "1px solid #ddd", borderRadius: 16, padding: 20 }}>
-            <h2>{title}</h2>
-            <p>{description}</p>
-          </article>
-        ))}
-      </section>
-    </main>
-  );
-}
+"use client";
+import {useEffect,useState} from "react";
+import {createSupabaseClient} from "@huambo-online/supabase";
+import {getCurrentUserProfile,updateCurrentUserProfile,signOutCurrentUser} from "@huambo-online/core";
+export default function ContaPage(){const[p,setP]=useState<any>(null);const[form,setForm]=useState({displayName:"",phone:"",countryCode:"AO",avatarUrl:""});const[msg,setMsg]=useState("");const client=()=>createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL??"",process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY??"");
+useEffect(()=>{void (async()=>{const r=await getCurrentUserProfile(client());if(r.error||!r.data){setMsg("Inicie sessão para gerir a sua conta.");return}setP(r.data);setForm({displayName:r.data.displayName,phone:r.data.phone??"",countryCode:r.data.countryCode,avatarUrl:r.data.avatarUrl??""});})();},[]);
+async function save(e:any){e.preventDefault();const r=await updateCurrentUserProfile(client(),form);if(r.error)setMsg(r.error.message);else{setMsg("Perfil atualizado.");setP(r.data)}}
+async function logout(){await signOutCurrentUser(client());window.location.href="/conta/login"}
+return <main style={{maxWidth:700,margin:"0 auto",padding:40}}><a href="/">← Huambo Online</a><h1>A sua conta</h1>{msg&&<p role="status">{msg}</p>}{p?<><form onSubmit={save} style={{display:"grid",gap:14}}><label>Nome<input value={form.displayName} onChange={e=>setForm({...form,displayName:e.target.value})} required/></label><label>Telefone<input value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})}/></label><label>País<input value={form.countryCode} onChange={e=>setForm({...form,countryCode:e.target.value})} maxLength={2}/></label><label>Foto URL<input value={form.avatarUrl} onChange={e=>setForm({...form,avatarUrl:e.target.value})}/></label><button>Guardar alterações</button></form><hr/><div style={{display:"flex",gap:12}}><a href="/guardados">⭐ Guardados</a><a href="/mensagens">💬 Mensagens</a><a href="/notificacoes">🔔 Notificações</a></div><button onClick={logout} style={{marginTop:20}}>Terminar sessão</button></>:<p>{msg}</p>}</main>}
