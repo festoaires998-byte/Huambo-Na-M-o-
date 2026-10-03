@@ -21,7 +21,7 @@ export async function saveItem(client:SupabaseClient,input:SavedItemInput){
 }
 
 export async function listSavedItems(client:SupabaseClient){
-  return client.from("saved_items").select("id,user_id,business_id,provider_id,service_id,product_id,auction_id,classified_listing_id,created_at").order("created_at",{ascending:false});
+  return client.from("saved_items").select("id,user_id,business_id,provider_id,service_id,product_id,auction_id,classified_listing_id,created_at,classified_listings(id,title,description,price,currency,status,media)").order("created_at",{ascending:false});
 }
 
 export async function removeSavedItem(client:SupabaseClient,id:string){
