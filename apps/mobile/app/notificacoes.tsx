@@ -2,12 +2,12 @@ import { useEffect,useState } from "react";
 import { Link } from "expo-router";
 import { StyleSheet,Text,View,Pressable,ScrollView } from "react-native";
 import { createSupabaseClient } from "@huambo-online/supabase";
-import { countUnreadNotifications,listNotifications,markAllNotificationsRead,markNotificationRead,getNotificationListingId,getNotificationConversationId,getNotificationSavedSearchId } from "@huambo-online/core";
+import { countUnreadNotifications,listNotifications,markAllNotificationsRead,markNotificationRead,getNotificationListingId,getNotificationConversationId,getNotificationSavedSearchId,subscribeToNotifications } from "@huambo-online/core";
 const url=process.env.EXPO_PUBLIC_SUPABASE_URL??"";const key=process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY??"";
 export default function Notificacoes(){
  const [items,setItems]=useState<any[]>([]); const [unread,setUnread]=useState(0); const [error,setError]=useState("");
  async function load(){const c=createSupabaseClient(url,key);const a=await listNotifications(c);const b=await countUnreadNotifications(c);if(a.error) setError(a.error.message); setItems(a.data??[]);setUnread(b.count??0);}
- useEffect(()=>{void load();},[]);
+ useEffect(()=>{void load();const c=createSupabaseClient(url,key);let stop=()=>{};void c.auth.getUser().then(({data})=>{if(data.user)stop=subscribeToNotifications(c,data.user.id,()=>{void load();});});return()=>stop();},[]);
  return <ScrollView contentContainerStyle={s.container}><Link href="/">← Huambo Online</Link><Link href="/notificacoes-preferencias">⚙️ Preferências de notificações</Link>{error&&<Text>{error}</Text>}<Text style={s.title}>Notificações {unread>0?(`(${unread} novas)`):""}</Text>
  <Pressable onPress={async()=>{const c=createSupabaseClient(url,key);await markAllNotificationsRead(c);await load();}}><Text>Marcar todas como lidas</Text></Pressable>
  {items.map(n=><View key={n.id} style={s.card}><Text style={s.strong}>{n.title}</Text><Text>{n.body}</Text><Text>{new Date(n.created_at).toLocaleString("pt-AO")}</Text>
