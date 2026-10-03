@@ -12,7 +12,4 @@ export async function updateSavedClassifiedSearch(client:SupabaseClient,id:strin
 export async function deleteSavedClassifiedSearch(client:SupabaseClient,id:string){
  return client.from("classified_saved_searches").delete().eq("id",id);
 }
-export function savedSearchNotificationTarget(data:Record<string,unknown>){
- const v=data?.listing_id;
- return typeof v==="string"&&v.length>0?{listingId:v,savedSearchId:typeof data.saved_search_id==="string"?data.saved_search_id:null}:null;
-}
+export function savedSearchNotificationTarget(data:Record<string,unknown>){\n const savedSearchId=typeof data?.saved_search_id==="string"?data.saved_search_id:null;\n const v=data?.listing_id;\n if(typeof v==="string"&&v.length>0)return{listingId:v,savedSearchId};\n const ids=data?.listing_ids;\n if(Array.isArray(ids)){const first=ids.find((id):id is string=>typeof id==="string"&&id.length>0);if(first)return{listingId:first,savedSearchId};}\n return null;\n}\n\nexport function getSavedSearchDigestListingIds(data:Record<string,unknown>):string[]{\n const ids=data?.listing_ids;\n return Array.isArray(ids)?ids.filter((id):id is string=>typeof id==="string"&&id.length>0):[];\n}\n
