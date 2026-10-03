@@ -10,3 +10,12 @@ export async function requestPasswordReset(client: SupabaseClient, email: string
   if (!email.trim()) return { data: null, error: new Error("Indique o e-mail da conta.") };
   return client.auth.resetPasswordForEmail(email.trim(), { redirectTo });
 }
+
+export async function deleteCurrentUserAccount(client: SupabaseClient, confirmation: string){
+  if(confirmation.trim().toUpperCase() !== "ELIMINAR") return {data:null,error:new Error('Escreva "ELIMINAR" para confirmar.')};
+  const {data:{user},error:authError}=await client.auth.getUser();
+  if(authError||!user) return {data:null,error:authError??new Error("Utilizador não autenticado.")};
+  const {error}=await client.rpc("delete_my_account");
+  if(error) return {data:null,error};
+  return client.auth.signOut();
+}
