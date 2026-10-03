@@ -6,7 +6,7 @@ export async function createSavedClassifiedSearch(client:SupabaseClient,name:str
 export async function listSavedClassifiedSearches(client:SupabaseClient){
  return client.from("classified_saved_searches").select("*").order("created_at",{ascending:false});
 }
-export async function updateSavedClassifiedSearch(client:SupabaseClient,id:string,patch:{name?:string;filters?:Record<string,unknown>;active?:boolean;notification_frequency?:"immediate"|"daily"}){
+export async function updateSavedClassifiedSearch(client:SupabaseClient,id:string,patch:{name?:string;filters?:Record<string,unknown>;active?:boolean;notification_frequency?:"immediate"|"daily";notification_quiet_until?:string|null}){
  return client.from("classified_saved_searches").update({...patch,updated_at:new Date().toISOString()}).eq("id",id).select().single();
 }
 export async function deleteSavedClassifiedSearch(client:SupabaseClient,id:string){
