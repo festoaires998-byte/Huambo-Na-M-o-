@@ -2,6 +2,7 @@ import type { ListingType } from "@huambo-online/types";
 
 export * from "./discovery";
 export * from "./identity";
+export * from "./profile";
 export * from "./onboarding";
 export * from "./location";
 export * from "./listings";
