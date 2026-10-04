@@ -2,11 +2,13 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createSupabaseClient } from "@huambo-online/supabase";
-import { createClassifiedListing } from "@huambo-online/core";
+import { createClassifiedListing, uploadClassifiedMedia } from "@huambo-online/core";
 
 export default function PublicarClassificado() {
   const router = useRouter();
   const [media, setMedia] = useState("");
+  const [mediaFiles, setMediaFiles] = useState<File[]>([]);
+  const [mediaPreview, setMediaPreview] = useState<string[]>([]);
   const [categoryId, setCategoryId] = useState("");
   const [addressId, setAddressId] = useState("");
   const [listingType, setListingType] = useState("classified");
@@ -30,7 +32,7 @@ export default function PublicarClassificado() {
     ]);
   }, []);
 
-  async function submit(e: React.FormEvent) {
+  function onMediaChange(files: FileList | null) { const next=Array.from(files ?? []).filter(f=>f.type.startsWith("image/")).slice(0,10); setMediaFiles(next); setMediaPreview(next.map(f=>URL.createObjectURL(f))); setMedia(""); }\n\n  async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     if (!title.trim()) { setError("Indique um título."); return; }
@@ -39,7 +41,7 @@ export default function PublicarClassificado() {
       const client = createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "", process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "");
       const user = await client.auth.getUser();
       if (!user.data.user) { setError("Inicie sessão para publicar."); return; }
-      const result = await createClassifiedListing(client, {
+      const uploaded:string[]=[];\n      for (const file of mediaFiles) { const up=await uploadClassifiedMedia(client,file,user.data.user.id); if(up.error) throw up.error; if(up.data) uploaded.push(up.data); }\n      const result = await createClassifiedListing(client, {
         ownerId: user.data.user.id,
         listingType: listingType as any,
         purpose: purpose as any,
@@ -73,7 +75,7 @@ export default function PublicarClassificado() {
       <textarea value={description} onChange={e=>setDescription(e.target.value)} placeholder="Descrição" rows={7}/>
       <select value={categoryId} onChange={e=>setCategoryId(e.target.value)}><option value="">Categoria (opcional)</option>{categories.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select>
       <select value={provinceId} onChange={async e=>{const id=e.target.value;setProvinceId(id);setMunicipalityId("");if(!id){setMunicipalities([]);return;}const c=createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "");const {data}=await c.from("municipalities").select("id,name").eq("province_id",id).order("name");setMunicipalities(data ?? []);}}><option value="">Província</option>{provinces.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select><select value={municipalityId} onChange={e=>setMunicipalityId(e.target.value)} disabled={!provinceId}><option value="">Município</option>{municipalities.map(m=><option key={m.id} value={m.id}>{m.name}</option>)}</select>
-      <textarea value={media} onChange={e=>setMedia(e.target.value)} placeholder="URLs das imagens, uma por linha" rows={4}/>
+      <input type="file" accept="image/*" multiple onChange={e=>onMediaChange(e.target.files)}/><div style={{display:"flex",gap:8,flexWrap:"wrap"}}>{mediaPreview.map((src,i)=><div key={src}><img src={src} alt="" style={{width:90,height:90,objectFit:"cover"}}/><button type="button" onClick={()=>{setMediaFiles(x=>x.filter((_,j)=>j!==i));setMediaPreview(x=>x.filter((_,j)=>j!==i));}}>Remover</button></div>)}</div><textarea value={media} onChange={e=>setMedia(e.target.value)} placeholder="URLs externas (opcional), uma por linha" rows={3}/>
       <input type="number" min="0" value={price} onChange={e=>setPrice(e.target.value)} placeholder="Preço em AOA"/>
       {error && <p>{error}</p>}
       <button type="submit" disabled={busy}>{busy ? "A publicar…" : "Publicar anúncio"}</button>
