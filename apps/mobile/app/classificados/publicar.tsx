@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { createSupabaseClient } from "@huambo-online/supabase";
@@ -16,7 +16,13 @@ export default function Publicar() {
   const [price, setPrice] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [categories, setCategories] = useState<{id:string;name:string}[]>([]);
+  const [provinces, setProvinces] = useState<{id:string;name:string}[]>([]);
+  const [municipalities, setMunicipalities] = useState<{id:string;name:string}[]>([]);
+  const [provinceId, setProvinceId] = useState("");
+  const [municipalityId, setMunicipalityId] = useState("");
 
+  useEffect(() => { const c=createSupabaseClient(process.env.EXPO_PUBLIC_SUPABASE_URL ?? "",process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? ""); void Promise.all([c.from("categories").select("id,name").eq("active",true).order("name").then(({data})=>setCategories(data??[])),c.from("provinces").select("id,name").eq("active",true).order("name").then(({data})=>setProvinces(data??[]))]); }, []);
   async function submit() {
     setError("");
     if (!title.trim()) { setError("Indique um título."); return; }
@@ -28,7 +34,7 @@ export default function Publicar() {
       const result = await createClassifiedListing(client, {
         ownerId: user.data.user.id, listingType: listingType as any, purpose: purpose as any,
         title, description, price: price ? Number(price) : undefined,
-        categoryId: categoryId || undefined, addressId: addressId || undefined,
+        categoryId: categoryId || undefined, addressId: addressId || undefined, attributes: { provinceId, municipalityId },
         media: media.split("\n").map(v => v.trim()).filter(Boolean)
       });
       if (result.error) { setError(result.error.message); return; }
@@ -44,8 +50,8 @@ export default function Publicar() {
     <Text>Finalidade</Text><View style={s.row}>{["sale","rent","lease","wanted","service"].map(x=><Pressable key={x} style={s.option} onPress={()=>setPurpose(x)}><Text>{purpose===x?"✓ ":""}{x}</Text></Pressable>)}</View>
     <TextInput style={s.input} value={title} onChangeText={setTitle} placeholder="Título"/>
     <TextInput style={[s.input,s.area]} multiline value={description} onChangeText={setDescription} placeholder="Descrição"/>
-    <TextInput style={s.input} value={categoryId} onChangeText={setCategoryId} placeholder="ID da categoria (opcional)"/>
-    <TextInput style={s.input} value={addressId} onChangeText={setAddressId} placeholder="ID da localização (opcional)"/>
+    <View style={s.row}>{categories.map(x=><Pressable key={x.id} style={s.option} onPress={()=>setCategoryId(x.id)}><Text>{categoryId===x.id?"✓ ":""}{x.name}</Text></Pressable>)}</View>
+    <View style={s.row}>{provinces.map(x=><Pressable key={x.id} style={s.option} onPress={async()=>{setProvinceId(x.id);setMunicipalityId("");const c=createSupabaseClient(process.env.EXPO_PUBLIC_SUPABASE_URL ?? "",process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "");const {data}=await c.from("municipalities").select("id,name").eq("province_id",x.id).order("name");setMunicipalities(data??[])}}><Text>{provinceId===x.id?"✓ ":""}{x.name}</Text></Pressable>)}</View><View style={s.row}>{municipalities.map(x=><Pressable key={x.id} style={s.option} onPress={()=>setMunicipalityId(x.id)}><Text>{municipalityId===x.id?"✓ ":""}{x.name}</Text></Pressable>)}</View>
     <TextInput style={[s.input,s.area]} multiline value={media} onChangeText={setMedia} placeholder="URLs das imagens, uma por linha"/>
     <TextInput style={s.input} keyboardType="decimal-pad" value={price} onChangeText={setPrice} placeholder="Preço em AOA"/>
     {error && <Text>{error}</Text>}
