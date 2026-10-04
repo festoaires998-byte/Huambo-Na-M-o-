@@ -54,7 +54,7 @@ export default function PublicarClassificado() {
         price: price ? Number(price) : undefined,
         categoryId: categoryId || undefined,
         addressId: addressId || undefined,
-        media: [...uploaded, ...media.split("\\n").map(v => v.trim()).filter(Boolean)]
+        media: [...uploaded, ...media.split("\n").map(v => v.trim()).filter(Boolean)]
       });
       if (result.error) { setError(result.error.message); return; }
       router.push("/classificados/" + (result.data as any).id);
