@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createSupabaseClient } from "@huambo-online/supabase";
 import { createClassifiedListing } from "@huambo-online/core";
@@ -22,14 +22,13 @@ export default function PublicarClassificado() {
   const [provinceId, setProvinceId] = useState("");
   const [municipalityId, setMunicipalityId] = useState("");
 
-  useState(() => {
+  useEffect(() => {
     const c = createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "", process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "");
     void Promise.all([
       c.from("categories").select("id,name").eq("active", true).order("name").then(({data}) => setCategories(data ?? [])),
       c.from("provinces").select("id,name").eq("active", true).order("name").then(({data}) => setProvinces(data ?? []))
     ]);
-    return null;
-  });
+  }, []);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
