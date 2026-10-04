@@ -37,3 +37,11 @@ export async function getClassifiedListing(client:SupabaseClient,id:string){
 export async function updateClassifiedStatus(client:SupabaseClient,id:string,status:string){
   return client.from("classified_listings").update({status,updated_at:new Date().toISOString()}).eq("id",id).select().single();
 }
+export async function uploadClassifiedMedia(client:SupabaseClient,file:File,ownerId:string){
+  const ext=(file.name.split('.').pop()||'bin').toLowerCase();
+  const path=ownerId+'/'+crypto.randomUUID()+'.'+ext;
+  const uploaded=await client.storage.from('classified-media').upload(path,file,{upsert:false,contentType:file.type||undefined});
+  if(uploaded.error) return uploaded;
+  const url=client.storage.from('classified-media').getPublicUrl(path).data.publicUrl;
+  return {data:url,error:null};
+}
