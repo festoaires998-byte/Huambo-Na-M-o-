@@ -32,7 +32,9 @@ export default function PublicarClassificado() {
     ]);
   }, []);
 
-  function onMediaChange(files: FileList | null) { const next=Array.from(files ?? []).filter(f=>f.type.startsWith("image/")).slice(0,10); setMediaFiles(next); setMediaPreview(next.map(f=>URL.createObjectURL(f))); setMedia(""); }\n\n  async function submit(e: React.FormEvent) {
+  function onMediaChange(files: FileList | null) { const next=Array.from(files ?? []).filter(f=>f.type.startsWith("image/")).slice(0,10); setMediaFiles(next); setMediaPreview(next.map(f=>URL.createObjectURL(f))); setMedia(""); }
+
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     if (!title.trim()) { setError("Indique um título."); return; }
@@ -41,7 +43,9 @@ export default function PublicarClassificado() {
       const client = createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "", process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "");
       const user = await client.auth.getUser();
       if (!user.data.user) { setError("Inicie sessão para publicar."); return; }
-      const uploaded:string[]=[];\n      for (const file of mediaFiles) { const up=await uploadClassifiedMedia(client,file,user.data.user.id); if(up.error) throw up.error; if(up.data) uploaded.push(up.data); }\n      const result = await createClassifiedListing(client, {
+      const uploaded:string[]=[];
+      for (const file of mediaFiles) { const up=await uploadClassifiedMedia(client,file,user.data.user.id); if(up.error) throw up.error; if(up.data) uploaded.push(up.data); }
+      const result = await createClassifiedListing(client, {
         ownerId: user.data.user.id,
         listingType: listingType as any,
         purpose: purpose as any,
@@ -50,7 +54,8 @@ export default function PublicarClassificado() {
         price: price ? Number(price) : undefined,
         categoryId: categoryId || undefined,
         addressId: addressId || undefined,
-        media: media.split("\n").map(v => v.trim()).filter(Boolean)
+        media: media.split("
+").map(v => v.trim()).filter(Boolean)
       });
       if (result.error) { setError(result.error.message); return; }
       router.push("/classificados/" + (result.data as any).id);
