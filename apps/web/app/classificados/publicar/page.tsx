@@ -16,6 +16,20 @@ export default function PublicarClassificado() {
   const [price, setPrice] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [categories, setCategories] = useState<{id:string;name:string}[]>([]);
+  const [provinces, setProvinces] = useState<{id:string;name:string}[]>([]);
+  const [municipalities, setMunicipalities] = useState<{id:string;name:string}[]>([]);
+  const [provinceId, setProvinceId] = useState("");
+  const [municipalityId, setMunicipalityId] = useState("");
+
+  useState(() => {
+    const c = createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "", process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "");
+    void Promise.all([
+      c.from("categories").select("id,name").eq("active", true).order("name").then(({data}) => setCategories(data ?? [])),
+      c.from("provinces").select("id,name").eq("active", true).order("name").then(({data}) => setProvinces(data ?? []))
+    ]);
+    return null;
+  });
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -58,8 +72,8 @@ export default function PublicarClassificado() {
       </select></label>
       <input required value={title} onChange={e=>setTitle(e.target.value)} placeholder="Título"/>
       <textarea value={description} onChange={e=>setDescription(e.target.value)} placeholder="Descrição" rows={7}/>
-      <input value={categoryId} onChange={e=>setCategoryId(e.target.value)} placeholder="ID da categoria (opcional)"/>
-      <input value={addressId} onChange={e=>setAddressId(e.target.value)} placeholder="ID da localização (opcional)"/>
+      <select value={categoryId} onChange={e=>setCategoryId(e.target.value)}><option value="">Categoria (opcional)</option>{categories.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select>
+      <select value={provinceId} onChange={async e=>{const id=e.target.value;setProvinceId(id);setMunicipalityId("");if(!id){setMunicipalities([]);return;}const c=createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "");const {data}=await c.from("municipalities").select("id,name").eq("province_id",id).order("name");setMunicipalities(data ?? []);}}><option value="">Província</option>{provinces.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select><select value={municipalityId} onChange={e=>setMunicipalityId(e.target.value)} disabled={!provinceId}><option value="">Município</option>{municipalities.map(m=><option key={m.id} value={m.id}>{m.name}</option>)}</select>
       <textarea value={media} onChange={e=>setMedia(e.target.value)} placeholder="URLs das imagens, uma por linha" rows={4}/>
       <input type="number" min="0" value={price} onChange={e=>setPrice(e.target.value)} placeholder="Preço em AOA"/>
       {error && <p>{error}</p>}
